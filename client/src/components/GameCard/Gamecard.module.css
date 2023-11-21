@@ -1,0 +1,30 @@
+.main {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 15px;
+    font-family: "Roboto", sans-serif;
+    
+  }
+  
+  .card {
+    background-color: #282340ab;
+    border: 2px solid black;
+    width: 12rem;
+    height: 20rem;
+    border-radius: 10px;
+    overflow: hidden;
+    cursor: pointer;
+    position: relative;
+    color: rgb(240, 240, 240);
+    box-shadow: 0 10px 30px 5px rgb(0, 0, 0);
+    
+  }
+  
+  .card .img {
+    top: 0;
+    left: 0;
+    max-width: 100%;
+    max-height: 100%;
+  }

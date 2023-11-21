@@ -1,24 +1,18 @@
-import React from 'react'
-import GameCard from '../GameCard/GameCard'
-// import {useSelector} from "react-redux";
-
+import React from 'react';
+import GameCard from '../GameCard/GameCard';
+import style from './Gamecards.module.css';
 
 const GameCards = ({ videogames }) => {
-  return(
-    <div>
-        {videogames.map(games=>{
-            return <GameCard
-            key={games.id}
-            id={games.id}
-            name={games.name}
-            image={games.background_image}
-            released={games.released}
-            rating={games.rating}
-            />
-        })}
+  return (
+    <div className={style.container}>
+      {videogames &&
+        videogames.map((game) => (
+          <div key={game.id} className={style.card}>
+            <GameCard game={game} />
+          </div>
+        ))}
     </div>
-)
-
-}
+  );
+};
 
 export default GameCards;

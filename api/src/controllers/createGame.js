@@ -12,6 +12,7 @@ const [newVideogame, created] = await Videogame.findOrCreate({
     background_image,
     rating,
     platforms,
+
   }
 });
 
