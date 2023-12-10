@@ -1,5 +1,5 @@
 import axios from "axios";
-import { GET_ALL_GAMES, GET_GAME_BY_ID, SEARCH_GAME_BY_NAME, GET_GENRES, PAGINATION, FILTER_BY_GENRE, FILTER_BY_RATING, SORT_AZ} from "./action-types"
+import { GET_ALL_GAMES, RESET, GET_GAME_BY_ID, CLEAR_DETAIL, SEARCH_GAME_BY_NAME, GET_GENRES, PAGINATION, FILTER_BY_GENRE, FILTER_BY_RATING, SORT_AZ} from "./action-types"
 
 export const getAllGames = () => {
     return async function (dispatch){
@@ -26,6 +26,20 @@ export const getAllGames = () => {
       }
     }
 
+    export const clearDetail = () => {
+      return function(dispatch) {
+        dispatch({
+          type: CLEAR_DETAIL,
+        });
+      };
+    };
+    export const reset = () => {
+      return (dispatch) => {
+        dispatch({
+          type: RESET
+        })
+      }
+    }
       export const searchGameByName = (name) => {
   return async function (dispatch) {
     try {
@@ -67,6 +81,7 @@ export function changePage(order) {
       console.error("Error:", error);
     }
   };
+
 }
 
 export const filterGenre = (order) => {

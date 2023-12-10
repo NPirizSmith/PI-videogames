@@ -26,7 +26,6 @@ const getGamesById = async (req, res) => {
       },
     });
     let { name, background_image, genres, description, released: releaseDate, rating, platforms } = response.data;
-    genres = genres.map(g => g.name);
     platforms = platforms.map(p => p.platform.name); 
     game= ({
         id,

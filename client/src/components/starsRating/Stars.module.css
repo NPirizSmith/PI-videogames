@@ -1,0 +1,19 @@
+.starsOuter {
+    position: absolute;
+    font-size: 2rem;
+    color: #ccc;
+  }
+  
+  .starsInner {
+    position: relative;
+    top: -5px;
+    left: -205px;
+    white-space: nowrap;
+    /* overflow: hidden; */
+    width: 100%;
+  }
+  
+  .stars {
+    height: 1em;
+    width: 1em; 
+  }

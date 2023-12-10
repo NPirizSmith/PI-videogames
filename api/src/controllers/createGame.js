@@ -12,7 +12,6 @@ const [newVideogame, created] = await Videogame.findOrCreate({
     background_image,
     rating,
     platforms,
-
   }
 });
 
@@ -22,7 +21,6 @@ if (created) {
 
 res.status(201).json(newVideogame); 
   } catch (error) {
-    console.error('Error al crear el videojuego:', error);
     res.status(500).json({ message: 'Error al crear el videojuego' });
   }
 };

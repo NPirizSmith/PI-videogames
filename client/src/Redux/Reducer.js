@@ -6,7 +6,10 @@ import {
   PAGINATION,
   FILTER_BY_GENRE,
   FILTER_BY_RATING,
-  SORT_AZ
+  SORT_AZ,
+  CLEAR_DETAIL,
+  RESET
+  
 } from "./Actions/action-types";
 
 let initialState = {
@@ -15,6 +18,7 @@ let initialState = {
   gameById: [],
   genres: [],
   filtered: [],
+  allPlatforms: [],
   currentPage: 0,
   filters: false,
 };
@@ -23,12 +27,39 @@ const rootReducer = (state = initialState, action) => {
   const cardsPerPage = 20;
   switch (action.type) {
     case GET_ALL_GAMES:
-      return {
-        ...state,
+
+    const gamePlatforms = new Set();
+
+    action.payload.forEach(game =>{
+      if (Number.isInteger(game.id)){
+        game.platforms.forEach((platforms)=>{
+          if(platforms.platform.name){
+            gamePlatforms.add(platforms.platform.name)  
+          }
+        })
+      }
+    })  
+ 
+    if(state.filtered.length===0){
+   
+    return {
+      ...state,
         videogames: [...action.payload].splice(0, cardsPerPage),
-        fullVideogames: action.payload,
-        filtered: [],
-        filters: false,
+        fullVideogames: [...action.payload],
+        // filtered: [],
+        filters: false,  
+        allPlatforms: [...gamePlatforms]
+    };
+    }
+      return {
+        
+        ...state,
+        videogames: [...state.filtered].splice(0, cardsPerPage),
+        fullVideogames: [...action.payload],
+        // filtered: [],
+        filters: false,  
+        allPlatforms: [...gamePlatforms]
+        
       };
       
     case PAGINATION:
@@ -69,6 +100,11 @@ const rootReducer = (state = initialState, action) => {
         gameById: action.payload,
       };
 
+      case CLEAR_DETAIL:
+        return{...state,
+          gameById: []
+        }
+
 
     case SEARCH_GAME_BY_NAME:
       return {
@@ -77,6 +113,13 @@ const rootReducer = (state = initialState, action) => {
         filter: true,
       };
 
+      case RESET:
+        return {
+          ...state, videogames:[...state.fullVideogames].splice(0, cardsPerPage),
+          filtered: [],
+          filters: false,
+          currentPage: 0
+        }
 
     case GET_GENRES:
       return {
@@ -86,6 +129,15 @@ const rootReducer = (state = initialState, action) => {
 
 
     case FILTER_BY_GENRE:
+      if (action.payload === "all") {
+        return {
+          ...state,
+          videogames: [...state.fullVideogames].splice(0, cardsPerPage),
+          filtered: [],
+          filters: true,
+        };
+      }
+    
       return {
         ...state,
         videogames: [...state.fullVideogames]
@@ -98,8 +150,8 @@ const rootReducer = (state = initialState, action) => {
       };
 
 
-   case FILTER_BY_RATING:
-  let filteredGamesByRating = [...state.fullVideogames];
+  case FILTER_BY_RATING:
+  let filteredGamesByRating = [...state.filtered];
 
   if (state.filters) {
     filteredGamesByRating = [...state.filtered];
@@ -121,7 +173,7 @@ const rootReducer = (state = initialState, action) => {
     filters: true,
   };
   case SORT_AZ:
-  let sortedGames = [...state.fullVideogames];
+  let sortedGames = [...state.filtered];
 
   if (state.filters) {
     sortedGames = [...state.filtered];

@@ -1,20 +1,25 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import style from './Gamecard.module.css'
+import defaultImage from '../../assets/defaultImage.jpg'
+import star from '../../assets/star.png'
 
 const GameCard = ({ game }) => {
+
+  const backgroundImage = game.background_image || defaultImage;
+
   return (
     <div className={style.main}>
-      <div className={style.card}>
-      <h2>{game.name}</h2>
-      <Link to={`/videogame/${game.id}`}>
-        <img src={game.background_image} alt={game.name} className={style.img}/>
+      <Link className={style.img} to={`/videogame/${game.id}`}>
+        <img src={backgroundImage} alt={game.name} />
       </Link>
-      <p>{game.rating}</p>
+      <h2 className={style.title}>{game.name}</h2>
+      <div className={style.data}>
       <p>{game.genres && game.genres.join(', ')}</p>
-    </div>
+      </div>
+      <div className={style.ratingStar}><img src={star}></img></div>
+      <p className={style.rating}>{game.rating}</p>
     </div>
   );
 };
-
 export default GameCard;

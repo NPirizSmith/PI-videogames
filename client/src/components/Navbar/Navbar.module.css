@@ -1,40 +1,54 @@
 .nav {
   
     display: flex;
-    justify-content: space-between;
     align-items: center;
     padding: 10px;
     position: fixed;
     top: 0;
     right: 0;
+    left: 0;
     z-index: 999;
-    background-color: #34495e83;
-    display:flex;
+    background-color: #0D1F2D;
     justify-content: center;
     padding: 10px;
-    position:fixed;
-    top: 0px;
-    right: 0px;
-    left: 0px;  
-    border-bottom: 2px solid #000000;
+    
   }
  .landing{
+   color: white ;
     position:absolute;
     left: 20px;
  }
 
  .home{
+   color: white ;
     position: relative;
     right: -370px;
  }
 
  .create{
+    color: white;
     position: relative;
     right: -400px;
  }
 
  .search{
+   
     position: absolute;
     position: center;
+ }
+ 
+ .searchIcon{
+   width: 25px;
+position: absolute;
+padding-left: 10px;
+ }
 
+ .input{
+ 
+   background: white;
+   border-radius: 3px;
+   appearance: none;
+   position: relative;
+   width: 200px;
+   height: 30px;
  }

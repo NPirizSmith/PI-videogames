@@ -10,13 +10,12 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
-  
+
 }
 
 
 a {
   font-weight: 500;
-  color: #000000;
   text-decoration: inherit;
 
 }
@@ -33,4 +32,6 @@ body {
   background-size: cover;
   background-repeat: no-repeat;
   background-attachment: fixed;
+  background-color: #9EA3B0;
+  
 }

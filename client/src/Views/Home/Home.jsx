@@ -1,18 +1,22 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from 'react-redux';
-import { changePage, filterGenre, getAllGames, getGenres, filterByRating, sortAZ } from "../../Redux/Actions/actions";
+import { changePage, filterGenre, getAllGames, getGenres, filterByRating, sortAZ, reset } from "../../Redux/Actions/actions";
 import GameCards from "../../components/GameCards/GameCards";
 import style from './Home.module.css'
+import prevArrow from "../../assets/prevArrow.png"
+import nextArrow from "../../assets/nextArrow.png"
 
 const Home = () => {
     const dispatch = useDispatch();
     const allGames = useSelector((state) => state.videogames);
     const genres = useSelector((state) => state.genres);
     const currentPage = useSelector((state) => state.currentPage);
-    const fullVideogames = useSelector((state) => state.fullVideogames);
-
-    const totalPages = Math.ceil(fullVideogames.length / 20);
-    const pageNumbers = Array.from({ length: totalPages }, (_, index) => index + 1);
+    const videogames = useSelector((state) => state.filtered);
+    
+    let totalPages = Math.ceil(videogames.length / 20)
+    if(!videogames.length) {
+        totalPages = 5
+    }   
     
     const [selectedOrigin, setSelectedOrigin] = useState('all');
 
@@ -30,13 +34,14 @@ const Home = () => {
     }
 
     useEffect(() => {
+
         dispatch(getAllGames())
         dispatch(getGenres())
     }, [dispatch]);
 
-    const handlePageClick = (page) => {
-        dispatch(changePage(page - 1));
-    };
+    const handlerReset = () => {
+        dispatch(reset())
+    }
 
     const filterByGenre = (event) => {
         dispatch(filterGenre(event.target.value))
@@ -61,48 +66,59 @@ const Home = () => {
 
     return (
         <div className={style.background}>
-            <h3>currentPage: {currentPage + 1}</h3>
-            <div>
-                <button onClick={pagination} name="prev">
-                    prev
-                </button>
-                {pageNumbers.map((page) => (
-                    <button key={page} onClick={() => handlePageClick(page)}>
-                        {page}
-                    </button>
-                ))}
-                <button onClick={pagination} name="next">
-                    next
-                </button>
-            </div>
-            <div>
-                <select name="filterByGenre" onChange={filterByGenre}>
+        <div className={style.main}>
+            
+            <div className={style.header}>
+            <button onClick={handlerReset}>Reset</button>
+                <select 
+                name="filterByGenre" 
+                onChange={filterByGenre}
+                className={style.select}
+                >
+                    <option value="all">Filter by Genre</option>
                     {genres.map((genre) => (
-                        <option key={genre.name} value={genre.name}>
+                        <option  key={genre.name} value={genre.name}>
                             {genre.name}
                         </option>
                     ))}
                 </select>
-                <select onChange={handleSortChange}>
-                    <option value="">Sort by rating</option>
+                <select 
+                className={style.select}
+                onChange={handleSortChange}>
+                    <option  value="">Sort by rating</option>
                     <option value="asc">Ascending</option>
                     <option value="desc">Descending</option>
                 </select>
-                <select onChange={sortAZHandler}>
+                <select 
+                className={style.select}
+                onChange={sortAZHandler}>
                     <option value="">Sort Games</option>
                     <option value="asc">Ascending</option>
                     <option value="desc">Descending</option>
                 </select>
-                <select onChange={handleOriginChange}>
+                <select 
+                className={style.select}
+                onChange={handleOriginChange}>
                     <option value="all">All Games</option>
                     <option value="db">Local Games</option>
                     <option value="api">API Games</option>
                 </select>
+                <div className={style.pagination}>
+              
+                    <img onClick={pagination} name="prev" src={prevArrow}></img>
+             
+                <h3>Page {currentPage + 1} - {totalPages}</h3>
+    
+                <img onClick={pagination} name="next" src={nextArrow}></img>
+
+            </div>
             </div>
             <div className={style.container}>
             <GameCards videogames={filteredGames} />
             </div>
         </div>
+        </div>
+        
     )
 };
 

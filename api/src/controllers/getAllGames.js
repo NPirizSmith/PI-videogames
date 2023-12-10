@@ -1,7 +1,6 @@
 const axios = require("axios");
 const { Videogame, Genre } = require("../db");
 const { API_KEY } = process.env;
-const platformController  = require('./getPlatform');
 
 const getAllGames = async (req, res) => {
   let dbGames = await Videogame.findAll({
@@ -38,6 +37,7 @@ const getAllGames = async (req, res) => {
         rating: game.rating,
         genres: game.genres.map((genre) => genre.name),
         released: game.released,
+        stores: game.stores[0]
       }));
 
       const dbGamesByName = dbGames.filter((game) =>
@@ -57,8 +57,7 @@ const getAllGames = async (req, res) => {
       const results = [...gameCreated, ...gameGet];
       return res.json(results);
     } catch (err) {
-      console.log(err);
-      return res.sendStatus(500);
+      return res.sendStatus(500).json(message.error);
     }
   } else {
     try {
@@ -88,6 +87,8 @@ const getAllGames = async (req, res) => {
               rating: game.rating,
               genres: game.genres.map((genre) => genre.name),
               released: game.released,
+              platforms: game.platforms,
+              stores: game.stores[0],
               isDBGame: false,
             })),
           ];
@@ -107,23 +108,10 @@ const getAllGames = async (req, res) => {
 
       const results = [...gameCreated, ...gameGet];
 
-      const allPlatforms = [];
-      allGames.forEach((game) => {
-        if (Array.isArray(game.platforms)) { // Verificar si platforms es un array
-          game.platforms.forEach((platform) => {
-            if (!allPlatforms.includes(platform)) {
-              allPlatforms.push(platform);
-            }
-          });
-        } else {
-          console.log(`game.platforms is not an array. Type: ${typeof game.platforms}`);
-          // Puedes agregar aquí el código necesario en caso de que platforms no sea un array
-        }
-      });
+    
       return res.json(results.slice(0, 100));
     } catch (err) {
-      console.log(err);
-      return res.sendStatus(500);
+      return res.sendStatus(500).json(message.error);
     }
   }
 };

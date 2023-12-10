@@ -1,16 +1,23 @@
 import React from 'react'
 import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import axios from "axios";
-import { createGame, getGenres } from '../../Redux/Actions/actions';
+import { createGame, getAllGames, getGenres } from '../../Redux/Actions/actions';
+import validations from "./validations/validations"
+import style from "./CreateGame.module.css"
+import close from "../../assets/close.png"
 
 function CreateGame() {
     const dispatch = useDispatch();
 
     const genres = useSelector((state) => state.genres)
+    const allPlatforms = useSelector((state) => state.allPlatforms)
+    const [isLoading, setIsLoading] = useState(true);
+    const [errors, setErrors] = useState(false);
 
     useEffect(() => {
         dispatch(getGenres())
+        dispatch(getAllGames())
+        setIsLoading(false); 
     }, [dispatch]);
 
     const [input, setInput] = useState({
@@ -20,68 +27,24 @@ function CreateGame() {
         description: "",
         background_image: "",
         genres: [],
-        platforms: "",
+        platforms: [],
     });
 
-    const [errors, setErrors] = useState({
-        name: "",
-        released: "",
-        rating: "",
-        description: "",
-        background_image: "",
-        genres: "",
-        platforms: "",
-    });
+    
 
-    const containsLetterOrNumber = (str) => {
-        return /[a-zA-Z0-9]/.test(str);
-    };
+    const [nameError, setNameError] = useState("");
+    const [descriptionError, setDescriptionError] = useState("");
+    const [imageError, setImageError] = useState("");
+    const [dateError, setDateError] = useState("");
+    const [ratingError, setRatingError] = useState("");
 
-    const hasReps = (str) => {
-        const repsAllowed = 3;
-        const regex = new RegExp(`(.)\\1{${repsAllowed},}`, "g");
-        return regex.test(str);
-    };
+    
 
-    const hasValidChar = (str) => {
-        return /^[a-zA-Z0-9\s\-\:\,\(\)\!\?\&]+$/.test(str);
-    };
-
-    const validate = (state, name) => {
-
-        switch (name) {
-            case "name":
-                if (state.name === "") {
-                    setErrors({ ...errors, name: "Campo requerido." });
-                } else if (!containsLetterOrNumber(state.name)) {
-                    setErrors({ ...errors, name: "Debe contener al menos una letra o número." });
-                } else if (hasReps(state.name.toLowerCase())) {
-                    setErrors({ ...errors, name: "Nombre incorrecto, evita repiticones." });
-                } else if (state.name.trim().length < 3) {
-                    setErrors({ ...errors, name: `El nombre debe tener al menos ${3} caracteres.` });
-                } else if (state.name.trim().length > 15) {
-                    setErrors({ ...errors, name: `El nombre no debe exceder los ${15} caracteres.` });
-                } else if (!hasValidChar(state.name)) {
-                    setErrors({ ...errors, name: "El campo solo puede contener letras (a-z), números (0-9), espacios y los siguientes caracteres: ( : , () ! ? & )." });
-                } else {
-                    setErrors({ ...errors, name: "" });
-                }
-                break;
-            case "description":
-                if (state.description === "") setErrors({ ...errors, description: "Campo requerido." })
-                else setErrors({ ...errors, name: "" })
-                break;
-
-        }
-    }
-
-
-    // const allPlatforms = useSelector((state) => state.platforms)
 
 
     const handleChange = function (event) {
         const { name, value } = event.target;
-        
+
         if (name === "genres") {
             const selectedGenreId = parseInt(value);
             if (!input.genres.includes(selectedGenreId)) {
@@ -93,45 +56,58 @@ function CreateGame() {
         } else if (name === "rating") {
             setInput({
                 ...input,
-                [name]: parseFloat(value),
+                rating: parseFloat(value),
             });
         } else if (name === "platforms") {
-            setInput({
-                ...input,
-                platforms: [...input.platforms, value],
-            });
+            const selectedPlatform = value;
+            if (!input.platforms.includes(selectedPlatform)) {
+                setInput({
+                    ...input,
+                    platforms: [...input.platforms, selectedPlatform],
+                });
+                
+            }
         } else {
             setInput({
                 ...input,
                 [name]: value,
             });
+        
+            const updatedInput = {
+                ...input,
+                [name]: value,
+                
+                
+            };
+
+            if (name === "platforms") {
+                const updatedPlatformsString = input.platforms.join(", ");
+                setInput({
+                    ...input,
+                    platforms: updatedPlatformsString,
+                });
+            }
+            
+        
+            const errors = validations(updatedInput, name);
+            if (name === 'name') {
+                setNameError(errors[name]);
+            } else if (name === 'description') {
+                setDescriptionError(errors[name]);
+            } else if (name === 'background_image') {
+                setImageError(errors[name]);
+            } else if (name === 'released') {
+                setDateError(errors[name]);
+            } else if (name === 'rating') {
+                setRatingError(errors[name]);
+            } else if (name === 'genres') {
+                setGenresError(errors[name]);
+            }
+            
         }
+    
     };
 
-    // const handleChange = function (event) {
-    //     if (event.target.name === "genres") {
-    //         setInput({
-    //             ...input,
-    //             genres: [...input.genres, event.target.value],
-    //         });
-    //     } else if (event.target.name === "platforms") {
-    //         setInput({
-    //             ...input,
-    //             platforms: [...input.platforms, event.target.value],
-    //         });
-    //     } else {
-    //         setInput({
-    //             ...input,
-    //             [event.target.name]: event.target.value,
-    //         });
-    //     }
-    //     const updatedInput = {
-    //         ...input,
-    //         [event.target.name]: event.target.value,
-    //     };
-    //     setInput(updatedInput);
-    //     validate(updatedInput, event.target.name);
-    // }
 
     const removeGenre = (genreId) => {
         setInput({
@@ -140,76 +116,90 @@ function CreateGame() {
         });
     };
 
-    function handleSubmit(e) {
-        e.preventDefault();
-        console.log(input);
-        dispatch(createGame(input))
-        alert('Game created succesfully')
+    const removePlatform = (platform) => {
         setInput({
-            name: "",
-            released: "",
-            rating: "",
-            description: "",
-            background_image: "",
-            genres: [],
-            platforms: [],
-        })
+            ...input,
+            platforms: input.platforms.filter(item => item !== platform),
+        });
+    };
+
+    function handleSubmit(e) {
+        
+        e.preventDefault();
+        
+        if (nameError || descriptionError || imageError || dateError) {
+            alert('Verifica los errores');
+        } else {
+
+       
+            // console.log(input);
+            dispatch(createGame(input));
+            alert('Game created!');
+            setInput({
+                name: "",
+                released: "",
+                rating: "",
+                description: "",
+                background_image: "",
+                genres: [],
+                platforms: "",
+            });
+        }
+
+       
     }
 
 
 
-
-    // function addPlatform(e) {
-    //     setplatforms(Array.from(new Set([...platforms, e.target.value])))
-    //     seterrors(
-    //         validate({
-    //             ...input,
-    //             genres,
-    //             platforms,
-    //             [e.target.name]: e.target.value,
-    //         })
-    //     );
-    // }
-
     return (
         <>
-            <div>
+            <div className={style.formContainer}>
+                {console.log(allPlatforms)}
                 {console.log(input)}
-                {console.log(errors)}
-                <h2>CREATE GAME</h2>
+                {console.log("error name:  " + nameError)}
+                <h2 className={style.title}>CREATE GAME</h2>
                 <div>
                     <form onSubmit={e => handleSubmit(e)}>
+                        <div className={style.nameContainer}>
                         <label placeholder='name'>Name:</label>
                         <br />
                         <input
+                            id="name"
                             name='name'
                             value={input.name}
                             placeholder='Name'
                             type="text"
                             autoComplete="off"
                             onChange={handleChange} />
-                        {errors.name && <span>{errors.name}</span>}
-                        <br />
+                        </div>
+                        <p className={style.error}>{nameError}</p>
+                        <div className={style.descriptionContainer}>
                         <label placeholder="description">Description:</label>
                         <br />
                         <textarea
+                            id='description'
                             name='description'
                             value={input.description}
                             placeholder='Description'
                             cols="30"
                             rows="3"
                             onChange={handleChange} />
-                        <br />
+                      </div>
+                      <p className={style.error}>{descriptionError}</p>
+                      <div className={style.imageContainer}>
                         <label placeholder='Image url'>Image:</label>
                         <br />
                         <input
+                            id='background_image'
                             name='background_image'
                             value={input.background_image}
                             placeholder='Url Image'
                             type="text"
                             autoComplete="off"
                             onChange={handleChange} />
-                        <br />
+                        </div>
+                            <p className={style.error} >{imageError}</p>
+                        <div className={style.releasedContainer}>
                         <label placeholder="date" >Release Date:</label>
                         <br />
                         <input
@@ -218,17 +208,26 @@ function CreateGame() {
                             type="date"
                             required
                             onChange={handleChange} />
-                        <br />
+                        </div>
+                            <p className={style.error}>{dateError}</p>
+                        <div className={style.ratingContainer}>
                         <label placeholder="rating">Rating:</label>
                         <br />
                         <input
+                            id='rating'
                             name='rating'
                             value={input.rating}
                             placeholder='Rating'
                             type='number'
-                            autoComplete="off"
-                            onChange={handleChange} />
-                        <br />
+                            autoComplete='off'
+                            onChange={handleChange}
+                            min="1"
+                            max="5"
+                            step='0.1'  />
+                        
+                        </div>
+                            <p className={style.error} >{ratingError}</p>
+                        <div className={style.genresContainer}>
                         <label>Genres:</label>
                         <div>
                             <select
@@ -244,14 +243,13 @@ function CreateGame() {
                                 })}
                             </select>
                             <span>
-                                <h3>Genres added:</h3>
                                 <ul>
                                     {input.genres.map(genreId => {
                                         const selectedGenre = genres.find(genre => genre.id === genreId);
                                         return (
-                                            <li key={selectedGenre.id}>
+                                            <li className={style.genres} key={selectedGenre.id}>
                                                 {selectedGenre.name}
-                                                <button onClick={() => removeGenre(selectedGenre.id)}>x</button>
+                                                <img className={style.close} src={close} onClick={() => removeGenre(selectedGenre.id)}></img>
                                             </li>
                                         );
                                     })}
@@ -260,21 +258,40 @@ function CreateGame() {
 
 
                         </div>
-                        <br />
+
+                        </div>
+                        <div className={style.platformsContainer}>
                         <label>Platforms:</label>
                         <div>
                             <select
                                 name="platforms"
-                                value={input.platforms}
                                 onChange={handleChange}
                             >
-                                <option default value="select">select</option>
-                                <option value="PC">PC</option>
-
+                                <option default value="select" disabled="disabled">Add platforms</option>
+                                {allPlatforms.map((platform, index) => (
+                                    <option key={index} value={platform}>{platform}</option>
+                                ))}
                             </select>
+                            <div>
+                                
+                            <ul>
+                                {input.platforms.length > 0 && input.platforms.map((platform, index) => (
+                                    <li className={style.platforms} key={index}>
+                                        {platform}
+                                        <img
+                                            className={style.close}
+                                            src={close}
+                                            onClick={() => removePlatform(platform)}
+                                            alt="Close"
+                                        />
+                                    </li>
+                                ))}
+                            </ul>
+                    </div>
+                        </div>
                         </div>
                         <div>
-                            <button type='submit'>Create</button>
+                            <button className={style.submit} type='submit'>Create</button>
                         </div>
                     </form>
                 </div>

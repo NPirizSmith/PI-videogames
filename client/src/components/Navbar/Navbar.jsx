@@ -1,13 +1,20 @@
 import React, { useState } from "react";
 import { Link, NavLink } from "react-router-dom";
 import style from "./Navbar.module.css"
+import searchicon from "../../assets/searchicon.png"
+// import { getAllGames } from "../../Redux/Actions/actions";
+
 
 function NavBar() {
+
+
+
     const [searchTerm, setSearchTerm] = useState("");
     function handleSubmit(event) {
         event.preventDefault();
         setSearchTerm("");
       }
+
 
       return (
         <div className={style.nav}>
@@ -19,19 +26,25 @@ function NavBar() {
                 value={searchTerm}
                 onChange={(event) => setSearchTerm(event.target.value)}
                 type="text"
+                placeholder="Search videogames..."
+                className={style.input}
               />
               <NavLink to={`/videogames/${searchTerm}`}>
-                <button type="submit">Search</button>
+               <img type="submit" src={searchicon} className={style.searchIcon}></img>
               </NavLink>
             </form>
         
           <div className="home">
-            <Link className={style.home} to="/home">
+            <Link 
+            className={style.home} 
+            to="/home"
+            >
+            
               <h3>Home</h3>
             </Link>
           </div>
-          <div className={style.create}>
-            <Link to="/creategame">
+          <div >
+            <Link className={style.create} to="/creategame">
               <h3>Create</h3>
             </Link>
           </div>
